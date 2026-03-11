@@ -64,8 +64,19 @@ CFLAGS="${CFLAGS} -std=c99 -Wall -Wextra -Wformat -Wmissing-prototypes -Wno-unus
 CXXFLAGS="${CXXFLAGS} -std=c++17 -Wall -Wextra -Wformat -Wnon-virtual-dtor -Wno-unused-parameter -Wsuggest-override"
 
 SYSCONFIG=/etc/sysconfig
+# Prefer Debian/Ubuntu sysconfig dir when detected at configure time.
+if test -r /etc/os-release; then
+	. /etc/os-release
+	case " ${ID} ${ID_LIKE} " in
+		*" debian "*|*" ubuntu "*)
+			SYSCONFIG=/etc/default
+			;;
+	esac
+elif test -r /etc/debian_version; then
+	SYSCONFIG=/etc/default
+fi
 
-AC_ARG_WITH([conf], AS_HELP_STRING([--with-conf], [Use a custom sysconfig directory (default is /etc/sysconfig)]),
+AC_ARG_WITH([conf], AS_HELP_STRING([--with-conf], [Use a custom sysconfig directory (default is /etc/sysconfig, or /etc/default on Debian/Ubuntu)]),
 	[with_conf=$withval], [with_conf=no])
 AS_IF([test "x$with_conf" != xno], [SYSCONFIG="${with_conf}"])
 
