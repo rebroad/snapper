@@ -68,6 +68,7 @@ namespace snapper
 	void quota_disable(int fd);
 
 	void quota_rescan(int fd);
+	void quota_rescan_if_needed(int fd);
 
 	qgroup_t calc_qgroup(uint64_t level, subvolid_t id);
 	uint64_t get_level(qgroup_t qgroup);
