@@ -343,6 +343,23 @@ namespace snapper
 		return;
 	}
 
+	if (source_parents.size() + snapshot_parents.size() == 1)
+	{
+	    const bool source_is_missing = source_parents.empty();
+	    const qgroup_t tracker = source_is_missing ? snapshot_parents.front() :
+						    source_parents.front();
+	    const qgroup_t existing_member = source_is_missing ? qgroup : source;
+	    const qgroup_t missing_member = source_is_missing ? source : qgroup;
+	    vector<qgroup_t> members = qgroup_query_children(fd, tracker);
+
+	    if (get_level(tracker) == 2 && members == vector<qgroup_t>{ existing_member })
+	    {
+		qgroup_assign(fd, missing_member, tracker);
+		quota_rescan_if_needed(fd);
+		return;
+	    }
+	}
+
 	if (!source_parents.empty() || !snapshot_parents.empty())
 	    return;
 
