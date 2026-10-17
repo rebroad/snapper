@@ -328,7 +328,10 @@ namespace snapper
 		vector<qgroup_t> expected{ source, qgroup };
 		sort(expected.begin(), expected.end());
 		if (members == expected)
+		{
+		    quota_rescan_if_needed(fd);
 		    return;
+		}
 	    }
 
 	    if (source_parents.size() + snapshot_parents.size() == 1)
