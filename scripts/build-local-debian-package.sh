@@ -103,7 +103,13 @@ tar -xJf "$source_build/package/snapper-$version.tar.xz" \
     --strip-components=1 -C "$package_source"
 tar -xzf "$source_build/package/debian.tar.gz" -C "$package_source"
 
-local_version="${version}-1+local1"
+base_version="${version}-1"
+local_sequence=$(date -u +%Y%m%d%H%M%S)
+local_version="${base_version}+local1.${local_sequence}.g${source_commit:0:12}"
+if ! dpkg --compare-versions "$local_version" gt "${base_version}+local1"; then
+    echo "Error: local package version does not sort after its previous build" >&2
+    exit 1
+fi
 changelog="$package_source/debian/changelog"
 changelog_tmp="$work_root/changelog.new"
 {
