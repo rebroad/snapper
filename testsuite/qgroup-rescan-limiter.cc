@@ -15,6 +15,7 @@
 #include <vector>
 #include <boost/test/unit_test.hpp>
 
+#include "../snapper/BtrfsUtils.h"
 #include "../snapper/QGroupRescanLimiter.h"
 
 using namespace snapper;
@@ -82,6 +83,21 @@ BOOST_AUTO_TEST_CASE(test_shared_qgroup_rescan_policy_must_match_per_filesystem)
                                        window, hold, true));
     BOOST_CHECK(!shared_policy_matches({{filesystem_a, window, hold, false}}, filesystem_a,
                                        window, hold, true));
+}
+
+
+BOOST_AUTO_TEST_CASE(test_paused_or_inconsistent_rescan_is_not_reported_as_complete)
+{
+    using BtrfsUtils::QGroupRescanResult;
+
+    BOOST_CHECK(BtrfsUtils::qgroup_rescan_wait_result(false, false) ==
+                QGroupRescanResult::Rescanned);
+    BOOST_CHECK(BtrfsUtils::qgroup_rescan_wait_result(true, false) ==
+                QGroupRescanResult::Deferred);
+    BOOST_CHECK(BtrfsUtils::qgroup_rescan_wait_result(false, true) ==
+                QGroupRescanResult::Deferred);
+    BOOST_CHECK(BtrfsUtils::qgroup_rescan_wait_result(true, true) ==
+                QGroupRescanResult::Deferred);
 }
 
 

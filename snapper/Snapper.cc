@@ -815,7 +815,7 @@ namespace snapper
     Snapper::calculateUsedSpace() const
     {
 	if (calculateUsedSpaceStatus())
-	    y2war("qgroup data is inconsistent; automatic rescan is deferred by its configured hold, window, or 24-hour limit");
+	    y2war("qgroup data is inconsistent; rescan was deferred or did not complete");
     }
 
 
@@ -862,7 +862,7 @@ namespace snapper
     {
 	QuotaDataStatus status = queryQuotaDataStatus();
 	if (status.stale)
-	    y2war("returning last-known qgroup quota values because the automatic rescan is deferred");
+	    y2war("returning last-known qgroup quota values because accounting is still stale");
 	return status.data;
     }
 

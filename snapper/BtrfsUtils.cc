@@ -829,6 +829,14 @@ namespace snapper
 	}
 
 
+	QGroupRescanResult
+	qgroup_rescan_wait_result(bool scan_running, bool inconsistent)
+	{
+	    return scan_running || inconsistent ? QGroupRescanResult::Deferred :
+		QGroupRescanResult::Rescanned;
+	}
+
+
 	static QGroupRescanResult
 	wait_for_qgroup_rescan(int fd)
 	{
@@ -838,7 +846,26 @@ namespace snapper
 
 	    sync(fd);
 
-	    return QGroupRescanResult::Rescanned;
+	    bool scan_running = false;
+	    bool inconsistent = false;
+	    try
+	    {
+		read_qgroup_rescan_status(fd, scan_running, inconsistent);
+	    }
+	    catch (const std::exception& e)
+	    {
+		y2war("could not verify qgroup rescan completion; retaining last-known quota values: "
+		      << e.what());
+		return QGroupRescanResult::Deferred;
+	    }
+
+	    QGroupRescanResult result = qgroup_rescan_wait_result(scan_running, inconsistent);
+	    if (result == QGroupRescanResult::Deferred)
+	    {
+		y2war("qgroup rescan stopped before accounting became consistent; retaining last-known quota values");
+	    }
+
+	    return result;
 	}
 
 

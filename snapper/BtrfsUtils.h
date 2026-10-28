@@ -103,6 +103,8 @@ namespace snapper
 	    Deferred
 	};
 
+	QGroupRescanResult qgroup_rescan_wait_result(bool scan_running, bool inconsistent);
+
 	QGroupRescanResult quota_rescan_if_needed(
 				int fd, const string& root_prefix,
 				const string& daily_window = "00:00-24:00",
